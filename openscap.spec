@@ -31,7 +31,7 @@ developing applications that use %{name}.
 
 %package        python
 Summary:        Python bindings for %{name}
-Group:          Development/Libraries
+Group:          Development/Python
 Requires:       %{name} = %{version}-%{release}
 BuildRequires:  python-devel 
 
@@ -41,7 +41,7 @@ libraries can be used by python.
 
 %package        perl
 Summary:        Perl bindings for %{name}
-Group:          Development/Libraries
+Group:          Development/Perl
 Requires:       %{name} = %{version}-%{release}
 BuildRequires:  perl-devel
 
