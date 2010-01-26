@@ -22,7 +22,7 @@ for the expression of Computer Network Defense related information.
 
 %package        devel
 Summary:        Development files for %{name}
-Group:          Development/Libraries
+Group:          Development/C
 Requires:       %{name} = %{version}-%{release}
 
 %description    devel
