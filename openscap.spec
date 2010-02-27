@@ -67,8 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README
+%{_bindir}/oscap-scan
 %{_libdir}/*.so.*
-%{_libexecdir}/*
+%{_libdir}/%{name}
 
 %files python
 %defattr(-,root,root,-)
@@ -84,3 +85,4 @@ rm -rf $RPM_BUILD_ROOT
 %doc docs/{html,latex,examples}/
 %{_includedir}/*
 %{_libdir}/*.so
+%{_libdir}/*.la
