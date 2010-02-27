@@ -11,6 +11,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  swig pcre-devel libxml2-devel
 BuildRequires:	rpm-devel
 BuildRequires:	libnl-devel
+BuildRequires:	curl-devel
 Requires(post):   /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
