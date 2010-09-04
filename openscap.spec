@@ -8,9 +8,12 @@ URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.6.2-literal.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires:  swig pcre-devel libxml2-devel
+BuildRequires:  swig
+BuildRequires:	pcre-devel
+BuildRequires:	libxml2-devel
+BuildRequires:	libxslt-devel
+BuildRequires:	libgcrypt-devel
 BuildRequires:	rpm-devel
-BuildRequires:	libnl-devel
 BuildRequires:	curl-devel
 Requires(post):   /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
