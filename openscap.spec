@@ -1,12 +1,12 @@
 Name:           openscap
-Version:        0.5.7
+Version:        0.6.2
 Release:        %mkrel 1
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
 URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
-Patch0:		openscap-0.5.7-literal.patch
+Patch0:		openscap-0.6.2-literal.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  swig pcre-devel libxml2-devel
 BuildRequires:	rpm-devel
@@ -68,9 +68,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README
-%{_bindir}/oscap-scan
+%{_sysconfdir}/bash_completion.d/oscap
+%{_bindir}/*
 %{_libdir}/*.so.*
 %{_libdir}/%{name}
+%{_mandir}/man8/*
+%{_datadir}/%{name}
 
 %files python
 %defattr(-,root,root,-)
@@ -79,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %files perl
 %defattr(-,root,root,-)
 %{perl_vendorarch}/*
-%{perl_vendorlib}/*
+%{perl_vendorlib}/*.pm
 
 %files devel
 %defattr(-,root,root,-)
