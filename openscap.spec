@@ -1,5 +1,5 @@
 Name:           openscap
-Version:        0.6.2
+Version:        0.6.3
 Release:        %mkrel 1
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
