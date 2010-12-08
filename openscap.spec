@@ -1,12 +1,13 @@
 Name:           openscap
 Version:        0.6.3
-Release:        %mkrel 2
+Release:        %mkrel 3
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
 URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.6.2-literal.patch
+Patch1:		openscap-0.6.3-rpm5.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  swig
 BuildRequires:	pcre-devel
@@ -15,8 +16,6 @@ BuildRequires:	libxslt-devel
 BuildRequires:	libgcrypt-devel
 BuildRequires:	rpm-devel
 BuildRequires:	curl-devel
-Requires(post):   /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
 
 %description
 OpenSCAP is a set of open source libraries providing an easier path 
