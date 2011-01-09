@@ -1,6 +1,6 @@
 Name:           openscap
 Version:        0.6.3
-Release:        %mkrel 3
+Release:        %mkrel 4
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
