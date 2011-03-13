@@ -1,13 +1,14 @@
 Name:           openscap
-Version:        0.6.3
-Release:        %mkrel 4
+Version:        0.7.1
+Release:        %mkrel 1
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
 URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.6.2-literal.patch
-Patch1:		openscap-0.6.3-rpm5.patch
+Patch1:		openscap-0.7.1-rpm5.patch
+Patch2:		openscap-0.7.1-link.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  swig
 BuildRequires:	pcre-devel
@@ -55,8 +56,10 @@ libraries can be used by perl.
 %prep
 %setup -q
 %patch0 -p0 -b .literal
+%patch2 -p0 -b .link
 
 %build
+autoreconf -fi
 %configure2_5x
 %make
 
@@ -88,7 +91,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%doc docs/{html,latex,examples}/
+%doc docs/{html,examples}/
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/*.la
+%{_libdir}/pkgconfig/*.pc
