@@ -1,21 +1,20 @@
 Name:           openscap
-Version:        0.7.1
-Release:        %mkrel 2
+Version:        0.8.2
+Release:        1
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
 URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
-Patch0:		openscap-0.6.2-literal.patch
+Patch0:		openscap-0.8.2-literal.patch
 Patch1:		openscap-0.7.1-rpm5.patch
 Patch2:		openscap-0.7.1-link.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  swig
 BuildRequires:	pcre-devel
 BuildRequires:	libxml2-devel
 BuildRequires:	libxslt-devel
 BuildRequires:	libgcrypt-devel
-BuildRequires:	rpm-devel
+#BuildRequires:	rpm-devel
 BuildRequires:	curl-devel
 
 %description
@@ -55,7 +54,7 @@ libraries can be used by perl.
 
 %prep
 %setup -q
-%patch0 -p0 -b .literal
+%patch0 -p1 -b .literal
 %patch2 -p0 -b .link
 
 %build
@@ -64,14 +63,9 @@ autoreconf -fi
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
 %makeinstall_std
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %files
-%defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README
 %{_sysconfdir}/bash_completion.d/oscap
 %{_bindir}/*
@@ -81,18 +75,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}
 
 %files python
-%defattr(-,root,root,-)
 %{python_sitearch}/*
 
 %files perl
-%defattr(-,root,root,-)
 %{perl_vendorarch}/*
 %{perl_vendorlib}/*.pm
 
 %files devel
-%defattr(-,root,root,-)
 %doc docs/{html,examples}/
 %{_includedir}/*
 %{_libdir}/*.so
-%{_libdir}/*.la
 %{_libdir}/pkgconfig/*.pc
