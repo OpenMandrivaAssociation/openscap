@@ -1,0 +1,26 @@
+diff --git a/src/OVAL/probes/unix/linux/iflisteners.c b/src/OVAL/probes/unix/linux/iflisteners.c
+index 013388d..1c7a439 100644
+--- a/src/OVAL/probes/unix/linux/iflisteners.c
++++ b/src/OVAL/probes/unix/linux/iflisteners.c
+@@ -340,7 +340,7 @@ static int get_interface(const int ent_ifindex, struct interface_t *interface) {
+ 		fclose(fd);
+ 
+ 		if (ent_ifindex == ifindex) {
+-			snprintf(interface->interface_name, sizeof interface->interface_name, d_ent->d_name);
++			snprintf(interface->interface_name, sizeof interface->interface_name, "%s", d_ent->d_name);
+ 			snprintf(buf, sizeof buf - 1, "/sys/class/net/%s/address", d_ent->d_name);
+ 			fd = fopen(buf, "rt");
+ 			if (fd == NULL) {
+diff --git a/src/OVAL/probes/unix/shadow.c b/src/OVAL/probes/unix/shadow.c
+index d5e5d86..42b1926 100644
+--- a/src/OVAL/probes/unix/shadow.c
++++ b/src/OVAL/probes/unix/shadow.c
+@@ -126,7 +126,7 @@ static SEXP_t *parse_enc_mth(const char *pwd)
+ 		if (*pwd != '$')
+ 			goto fail;
+ 
+-		return SEXP_string_newf(mth_str);
++		return SEXP_string_newf("%s", mth_str);
+ 	default:
+ 		return SEXP_string_newf("DES");
+ 	}

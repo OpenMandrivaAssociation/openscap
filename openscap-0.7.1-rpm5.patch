@@ -1,0 +1,230 @@
+--- openscap-0.7.1/configure.ac.rpm5	2011-03-10 16:05:47.000000000 +0100
++++ openscap-0.7.1/configure.ac	2011-03-13 03:25:44.000000000 +0100
+@@ -352,8 +352,8 @@
+ AC_SUBST(curl_cflags)
+ AC_SUBST(curl_libs)
+ 
+-AC_SUBST(rpm_cflags)
+-AC_SUBST(rpm_libs)
++AC_SUBST([rpm_cflags], ["$RPM_CFLAGS"])
++AC_SUBST([rpm_libs], ["$RPM_LIBS"])
+ 
+ AC_SUBST(deb_cflags)
+ AC_SUBST(deb_libs)
+@@ -629,7 +629,6 @@
+ AM_CONDITIONAL([WANT_PROBES_LINUX], test "$probes_linux" = yes)
+ AM_CONDITIONAL([WANT_UTIL_OSCAP], test "$util_oscap" = yes)
+ AM_CONDITIONAL([ENABLE_PROBE_RPMINFO], test "$have_librpm" = yes)
+-AM_CONDITIONAL([ENABLE_PROBE_RPMINFO44], test "$have_librpm44" = yes)
+ AM_CONDITIONAL([ENABLE_PROBE_DPKGINFO], test "$have_libapt_pkg" = yes)
+ AM_CONDITIONAL([WANT_BINDINGS], test "$bindings" = yes)
+ AM_CONDITIONAL([ENABLE_VALGRIND_TESTS], test "$vgcheck" = yes)
+--- openscap-0.7.1/src/OVAL/probes/unix/linux/rpminfo.c.rpm5	2011-03-13 03:25:44.000000000 +0100
++++ openscap-0.7.1/src/OVAL/probes/unix/linux/rpminfo.c	2011-03-13 03:29:56.000000000 +0100
+@@ -49,6 +49,8 @@
+ #endif
+ 
+ #include <stdio.h>
++#include <stdint.h>
++#include <stdlib.h>
+ #include <string.h>
+ #include <errno.h>
+ #include <assert.h>
+@@ -57,11 +59,14 @@
+ #include <fcntl.h>
+ 
+ /* RPM headers */
+-#include <rpm/rpmdb.h>
+-#include <rpm/rpmlib.h>
+-#include <rpm/rpmts.h>
+-#include <rpm/rpmmacro.h>
+-#include <rpm/rpmlog.h>
++#include <rpmtypes.h>
++#include <rpmdb.h>
++#include <rpmts.h>
++#include <rpmmacro.h>
++#include <rpmlog.h>
++#include <rpmcli.h>
++#include <rpmtag.h>
++#include <rpmio.h>
+ 
+ /* SEAP */
+ #include <seap.h>
+@@ -70,13 +75,6 @@
+ #include <alloc.h>
+ #include <common/assume.h>
+ 
+-#ifdef HAVE_LIBRPM44
+-#include <rpm/header.h>
+-#define headerFormat(_h, _fmt, _emsg) headerSprintf((_h),( _fmt), rpmTagTable, rpmHeaderFormats, (_emsg))
+-#define rpmFreeCrypto() while(0)
+-#define rpmFreeFilesystems() while(0)
+-#endif
+-
+ #ifndef _A
+ #define _A(x) assert(x)
+ #endif
+@@ -87,13 +85,13 @@
+ };
+ 
+ struct rpminfo_rep {
+-        char *name;
+-        char *arch;
+-        char *epoch;
+-        char *release;
+-        char *version;
+-        char *evr;
+-        char *signature_keyid;
++        const char *name;
++        const char *arch;
++        const char *epoch;
++        const char *release;
++        const char *version;
++        const char *evr;
++        const char *signature_keyid;
+ };
+ 
+ struct rpminfo_global {
+@@ -118,38 +116,40 @@
+ {
+         errmsg_t rpmerr;
+         char *str, *sid;
+-        size_t len;
++	char tmp[16];
++	HE_t he = (HE_t)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+ 
+         assume_d (h != NULL, /* void */);
+         assume_d (r != NULL, /* void */);
+ 
+-        r->name = headerFormat (h, "%{NAME}", &rpmerr);
+-        r->arch = headerFormat (h, "%{ARCH}", &rpmerr);
+-        str     = headerFormat (h, "%{EPOCH}", &rpmerr);
+-
+-        if (strcmp (str, "(none)") == 0) {
+-                str    = oscap_realloc (str, sizeof (char) * 2);
+-                str[0] = '0';
+-                str[1] = '\0';
+-        }
+-
+-        r->epoch   = str;
+-        r->release = headerFormat (h, "%{RELEASE}", &rpmerr);
+-        r->version = headerFormat (h, "%{VERSION}", &rpmerr);
+-
+-        len = (strlen (r->epoch)   +
+-               strlen (r->release) +
+-               strlen (r->version) + 2);
+-
+-        str = oscap_alloc (sizeof (char) * (len + 1));
+-        snprintf (str, len + 1, "%s:%s-%s",
+-                  r->epoch,
+-                  r->version,
+-                  r->release);
+-
+-        r->evr = str;
+-
+-        str = headerFormat (h, "%{SIGGPG:pgpsig}", &rpmerr);
++	he->tag = RPMTAG_NAME;
++	if(headerGet(h, he, 0))
++    	    r->name = he->p.str;
++	he->tag = RPMTAG_ARCH;
++	if(headerGet(h, he, 0))
++    	    r->arch = he->p.str;
++	he->tag = RPMTAG_EPOCH;
++	if(headerGet(h, he, 0)) {
++    	    snprintf(tmp, sizeof(tmp), "%u", *he->p.ui32p);
++	    r->epoch = strdup(tmp);
++	}
++
++	he->tag = RPMTAG_RELEASE;
++	if(headerGet(h, he, 0))
++    	    r->release = he->p.str;
++
++	he->tag = RPMTAG_VERSION;
++	if(headerGet(h, he, 0))
++    	    r->version = he->p.str;
++
++	he->tag = RPMTAG_PROVIDEVERSION;
++	if(headerGet(h, he, 0))
++	    r->evr = he->p.argv[he->c-1];
++
++	str = headerSprintf (h, 
++		"%|DSAHEADER?{%{DSAHEADER:pgpsig}}:{%|RSAHEADER?{%{RSAHEADER:pgpsig}}:"
++		"{%|SIGGPG?{%{SIGGPG:pgpsig}}:{%|SIGPGP?{%{SIGPGP:pgpsig}}:{(none)}|}|}|}|",
++		rpmTagTable, rpmHeaderFormats, &rpmerr);
+         sid = strrchr (str, ' ');
+         r->signature_keyid = (sid != NULL ? strdup (sid+1) : strdup ("0"));
+         oscap_free (str);
+@@ -166,7 +166,7 @@
+  */
+ static int get_rpminfo (struct rpminfo_req *req, struct rpminfo_rep **rep)
+ {
+-	rpmdbMatchIterator match;
++	rpmmi match;
+ 	Header pkgh;
+ 	int ret = 0, i;
+ 
+@@ -176,25 +176,25 @@
+ 
+         switch (req->op) {
+         case OVAL_OPERATION_EQUALS:
+-                match = rpmdbInitIterator (g_rpm.rpmdb, RPMTAG_NAME, (const void *)req->name, 0);
++                match = rpmmiInit(g_rpm.rpmdb, RPMTAG_NAME, (const void *)req->name, 0);
+ 
+                 if (match == NULL) {
+                         ret = 0;
+                         goto ret;
+                 }
+ 
+-                ret = rpmdbGetIteratorCount (match);
++                ret = rpmmiCount (match);
+ 
+                 break;
+-        case OVAL_OPERATION_PATTERN_MATCH:
+-                match = rpmdbInitIterator (g_rpm.rpmdb, RPMDBI_PACKAGES, NULL, 0);
++	case OVAL_OPERATION_PATTERN_MATCH:
++		match = rpmmiInit(g_rpm.rpmdb, RPMDBI_PACKAGES, NULL, 0);
+ 
+                 if (match == NULL) {
+                         ret = 0;
+                         goto ret;
+                 }
+ 
+-                if (rpmdbSetIteratorRE (match, RPMTAG_NAME, RPMMIRE_REGEX,
++                if (rpmmiAddPattern (match, RPMTAG_NAME, RPMMIRE_REGEX,
+                                         (const char *)req->name) != 0)
+                 {
+                         ret = -1;
+@@ -216,7 +216,7 @@
+                 (*rep) = oscap_realloc (*rep, sizeof (struct rpminfo_rep) * ret);
+ 
+                 for (i = 0; i < ret; ++i) {
+-                        pkgh = rpmdbNextIterator (match);
++                        pkgh = rpmmiNext (match);
+ 
+                         if (pkgh != NULL)
+                                 pkgh2rep (pkgh, (*rep) + i);
+@@ -228,14 +228,14 @@
+         } else {
+                 ret = 0;
+ 
+-                while ((pkgh = rpmdbNextIterator (match)) != NULL) {
++                while ((pkgh = rpmmiNext (match)) != NULL) {
+                         (*rep) = oscap_realloc (*rep, sizeof (struct rpminfo_rep) * ++ret);
+                         assume_r (*rep != NULL, -1);
+                         pkgh2rep (pkgh, (*rep) + (ret - 1));
+                 }
+         }
+ 
+-	match = rpmdbFreeIterator (match);
++	match = rpmmiFree (match);
+ ret:
+         pthread_mutex_unlock (&(g_rpm.mutex));
+         return (ret);
+@@ -261,7 +261,6 @@
+         struct rpminfo_global *r = (struct rpminfo_global *)ptr;
+ 
+         rpmdbClose (r->rpmdb);
+-	rpmFreeCrypto();
+         rpmFreeRpmrc();
+         rpmFreeMacros(NULL);
+         rpmlogClose();

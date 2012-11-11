@@ -1,0 +1,11 @@
+--- swig/Makefile.am.link	2011-01-14 11:03:55.000000000 +0100
++++ swig/Makefile.am	2011-03-13 03:58:34.000000000 +0100
+@@ -16,7 +16,7 @@
+ nodist_pyexec_PYTHON = openscap.py openscap_api.py
+ pyexec_LTLIBRARIES = _openscap_py.la
+ _openscap_py_la_LDFLAGS = -module -avoid-version
+-_openscap_py_la_LIBADD  = ${top_builddir}/src/libopenscap.la
++_openscap_py_la_LIBADD  = ${top_builddir}/src/libopenscap.la -lpython$(PYTHON_VERSION)
+ nodist__openscap_py_la_SOURCES = openscap_py_wrap.c
+ 
+ WANT_MODULE=
