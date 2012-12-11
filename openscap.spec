@@ -1,5 +1,5 @@
 Name:           openscap
-Version:        0.8.2
+Version:        0.9.1
 Release:        1
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
@@ -8,7 +8,6 @@ URL:            http://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.8.2-literal.patch
 Patch1:		openscap-0.7.1-rpm5.patch
-Patch2:		openscap-0.7.1-link.patch
 BuildRequires:  swig
 BuildRequires:	pcre-devel
 BuildRequires:	libxml2-devel
@@ -55,11 +54,10 @@ libraries can be used by perl.
 %prep
 %setup -q
 %patch0 -p1 -b .literal
-%patch2 -p0 -b .link
 
 %build
 autoreconf -fi
-%configure2_5x
+%configure2_5x --enable-perl
 %make
 
 %install
