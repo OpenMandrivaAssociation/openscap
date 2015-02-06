@@ -1,6 +1,6 @@
 Name:           openscap
 Version:        0.9.1
-Release:        1
+Release:        2
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
