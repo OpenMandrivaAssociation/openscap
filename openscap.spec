@@ -4,7 +4,7 @@ Release:        2
 Summary:        Set of open source libraries enabling integration of the SCAP line of standards
 Group:          System/Libraries
 License:        LGPLv2+
-URL:            http://www.open-scap.org/
+URL:            https://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.8.2-literal.patch
 Patch1:		openscap-0.7.1-rpm5.patch
