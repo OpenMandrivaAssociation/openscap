@@ -8,6 +8,11 @@ URL:            https://www.open-scap.org/
 Source0:        http://open-scap.org/download/%{name}-%{version}.tar.gz
 Patch0:		openscap-0.8.2-literal.patch
 Patch1:		openscap-0.7.1-rpm5.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:  swig
 BuildRequires:	pcre-devel
 BuildRequires:	libxml2-devel
